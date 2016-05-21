@@ -8,8 +8,7 @@
 */
 
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.*;
 
 public class InvestigateHASCCorpus {
 
@@ -153,10 +152,14 @@ public class InvestigateHASCCorpus {
                 activityMetaCount += metaFiles.length;
                 activityLabelCount += labelFiles.length;
 
-//                        System.out.println("meta files count = " + meta_files.length);
-//                        System.out.println();
+                // 各加速度ファイルにアクセス
+//                for (File accFile : accFiles){
+//                    getFileTime(accFile);
+//                }
 
+                // 各personディレクトリの処理終了
             }
+
             // 各行動に含まれるファイル数の表示
             System.out.println("acc count = " + activityAccCount);
             System.out.println("gyro count = " + activityGyroCount);
@@ -184,6 +187,43 @@ public class InvestigateHASCCorpus {
         System.out.println("total mag count = " + totalMagCount);
         System.out.println("total meta count = " + totalMetaCount);
         System.out.println("total label count = " + totalLabelCount);
+
+    }
+
+    static private void getFileTime(File file){
+        try {
+
+            FileInputStream input = new FileInputStream(file);
+            InputStreamReader stream = new InputStreamReader(input);
+            BufferedReader buffer = new BufferedReader(stream);
+
+            String line;
+
+            while ((line = buffer.readLine()) != null) {
+
+                byte[] b = line.getBytes();
+                line = new String(b, "UTF-8");
+                String[] columns = line.split(",",-1);
+
+                for (int j = 0; j < columns.length; j++) {
+                    System.out.print(columns[j] + "\t");
+                }
+
+                System.out.println("");
+
+            }
+
+            input.close();
+            stream.close();
+            buffer.close();
+
+        } catch (UnsupportedEncodingException | FileNotFoundException e) {
+            e.printStackTrace();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
 
     }
 }
