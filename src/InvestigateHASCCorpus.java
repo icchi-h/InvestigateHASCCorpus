@@ -20,6 +20,7 @@ public class InvestigateHASCCorpus {
     // 出力ファイル
     final public static String outputFile = "./result.csv";
 
+    // ファイルライター
     static PrintWriter pw = null;
 
 
@@ -339,8 +340,11 @@ public class InvestigateHASCCorpus {
                     height = height.trim(); // 空白の削除
 
 //                    System.out.println(height);
-                    ans[0] = Float.parseFloat(height);
-                    getHeight_flag = true;
+                    try {
+                        ans[0] = Float.parseFloat(height);
+                        getHeight_flag = true;
+                    } catch (NumberFormatException ex){
+                    }
                 }
                 // Weightの処理
                 else if (line_str.indexOf(weightTAG) != -1) {
@@ -352,8 +356,11 @@ public class InvestigateHASCCorpus {
                     weight = weight.trim(); // 空白の削除
 
 //                    System.out.println(weight);
-                    ans[1] = Float.parseFloat(weight);
-                    getWeight_flag = true;
+                    try {
+                        ans[1] = Float.parseFloat(weight);
+                        getWeight_flag = true;
+                    } catch(NumberFormatException ex){
+                    }
                 }
 
                 if (getHeight_flag == true && getWeight_flag == true) return ans;
