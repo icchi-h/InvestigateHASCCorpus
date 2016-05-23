@@ -9,6 +9,7 @@
 
 
 import java.io.*;
+import java.util.StringTokenizer;
 
 public class InvestigateHASCCorpus {
 
@@ -84,19 +85,27 @@ public class InvestigateHASCCorpus {
 
         File data_dir = new File(dataPath);
 
-        // カウンター
+        // ユーザカウンター
+        int totalUserCount = 0;
+        // ファイルカウンター
         int totalAccCount = 0;
         int totalGyroCount = 0;
         int totalMagCount = 0;
         int totalLabelCount = 0;
         int totalMetaCount = 0;
-        int totalUserCount = 0;
         int activityAccCount = 0;
         int activityGyroCount = 0;
         int activityMagCount = 0;
         int activityLabelCount = 0;
         int activityMetaCount = 0;
         int activityUserCount = 0;
+        // 性別カウンター
+        float male = 0;
+        float totalMale = 0;
+        float female = 0;
+        float totalFemale = 0;
+        float unknown = 0;
+        float totalUnknown = 0;
 
 
         // data内のファイルを取得
@@ -114,18 +123,21 @@ public class InvestigateHASCCorpus {
             System.out.println(activityDir);
             System.out.println("===================================================");
 
-            // カウンターの初期化
+            // ファイルカウンターの初期化
             activityAccCount = 0;
             activityGyroCount = 0;
             activityMagCount = 0;
             activityLabelCount = 0;
             activityMetaCount = 0;
             activityUserCount = 0;
+            // 性別カウンターの初期化
+            male = 0;
+            female = 0;
+            unknown = 0;
 
             // 行動ディレクトリ内のpersonディレクトリを取得
             File[] personDirs = activityDir.listFiles(normalFileFilter);
             activityUserCount = personDirs.length;
-            System.out.println("person count = " + activityUserCount);
 
 
             // 各personディレクトリにアクセス
@@ -157,24 +169,55 @@ public class InvestigateHASCCorpus {
 //                    getFileTime(accFile);
 //                }
 
+                // 各metaファイルにアクセス
+                for(File metaFile : metaFiles) {
+
+                    String meta_file_name = metaFile.getName();
+//                    System.out.println(meta_file_name);
+
+                    // 名前からID部分の取り出し
+//                    int idx_hascID = meta_file_name.indexOf(".");
+//                    String file_id = meta_file_name.substring(0, idx_hascID);
+
+                    // 性別の取得
+                    String gender = getGender(metaFile);
+                    if (gender.equals("male")) male++;
+                    else if (gender.equals("female")) female++;
+                    else{
+//                        System.out.println(gender);
+                        unknown++;
+                    }
+
+                    // 各metaファイルの処理終了
+                }
                 // 各personディレクトリの処理終了
             }
 
             // 各行動に含まれるファイル数の表示
+            System.out.println("person count = " + activityUserCount);
+            float activityFemaleUser = activityUserCount*(female/(male+female+unknown));
+            float activityUnknownUser = activityUserCount*(unknown/(male+female+unknown));
+            int activityMaleUser = activityUserCount - (int)activityFemaleUser - (int)activityUnknownUser;
+            System.out.printf("\t(male: %d, female: %d, unknown: %d)\n", activityMaleUser, (int)activityFemaleUser, (int)activityUnknownUser);
             System.out.println("acc count = " + activityAccCount);
             System.out.println("gyro count = " + activityGyroCount);
             System.out.println("mag count = " + activityMagCount);
             System.out.println("meta count = " + activityMetaCount);
+            System.out.printf("\t(male: %d, female: %d, unknown: %d)\n", (int)male, (int)female, (int)unknown);
             System.out.println("label count = " + activityLabelCount);
             System.out.println();
 
-            // カウンターの更新
+            // ファイルカウンターの更新
             totalUserCount += activityUserCount;
             totalAccCount += activityAccCount;
             totalGyroCount += activityGyroCount;
             totalMagCount += activityMagCount;
             totalMetaCount += activityMetaCount;
             totalLabelCount += activityLabelCount;
+            // 性別カウンターの更新
+            totalMale += male;
+            totalFemale += female;
+            totalUnknown += unknown;
         }
 
         // 全体のファイル数の表示
@@ -182,49 +225,97 @@ public class InvestigateHASCCorpus {
         System.out.println("Summary");
         System.out.println("===================================================");
         System.out.println("total user count = " + totalUserCount);
+        float totalFemaleUser = totalUserCount*(totalFemale/(totalMale+totalFemale+totalUnknown));
+        float totalUnknownUser = totalUserCount*(totalUnknown/(totalMale+totalFemale+totalUnknown));
+        int totalMaleUser = totalUserCount - (int)totalFemaleUser - (int)totalUnknownUser;
+        System.out.printf("\t(male: %d, female: %d, unknown: %d)\n", totalMaleUser, (int)totalFemaleUser, (int)totalUnknownUser);
         System.out.println("total acc count = " + totalAccCount);
         System.out.println("total gyro count = " + totalGyroCount);
         System.out.println("total mag count = " + totalMagCount);
         System.out.println("total meta count = " + totalMetaCount);
+        System.out.printf("\t(male: %d, female: %d, unknown: %d)\n", (int)totalMale, (int)totalFemale, (int)totalUnknown);
         System.out.println("total label count = " + totalLabelCount);
 
     }
 
-    static private void getFileTime(File file){
+    static String getGender(File file){
+
+        // 性別タグ
+        final String genderTAG = "Gender:";
+
+        // 性別変数
+        String gender = null;
+
         try {
+            //ファイルを読み込む
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
 
-            FileInputStream input = new FileInputStream(file);
-            InputStreamReader stream = new InputStreamReader(input);
-            BufferedReader buffer = new BufferedReader(stream);
+            //読み込んだファイルを１行ずつ処理する
+            String line_str;
+            for(int i=0; (line_str = br.readLine()) != null; i++){
 
-            String line;
+                // Genderの処理
+                if (line_str.indexOf(genderTAG) != -1) {
 
-            while ((line = buffer.readLine()) != null) {
 
-                byte[] b = line.getBytes();
-                line = new String(b, "UTF-8");
-                String[] columns = line.split(",",-1);
+                    // TerminalMountから内容の取り出し
+                    int idx_gender = line_str.indexOf(":") + 1;
+                    gender = line_str.substring(idx_gender, line_str.length());
+                    gender = gender.trim(); // 空白の削除
 
-                for (int j = 0; j < columns.length; j++) {
-                    System.out.print(columns[j] + "\t");
+//                    System.out.println(gender);
+                    return gender;
                 }
-
-                System.out.println("");
-
             }
 
-            input.close();
-            stream.close();
-            buffer.close();
+            //終了処理
+            br.close();
 
-        } catch (UnsupportedEncodingException | FileNotFoundException e) {
-            e.printStackTrace();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-
+        } catch (IOException ex) {
+            //例外発生時処理
+            ex.printStackTrace();
         }
 
+        //
+        return "unknown";
     }
+
+
+//    static private void getFileTime(File file){
+//        try {
+//
+//            FileInputStream input = new FileInputStream(file);
+//            InputStreamReader stream = new InputStreamReader(input);
+//            BufferedReader buffer = new BufferedReader(stream);
+//
+//            String line;
+//
+//            while ((line = buffer.readLine()) != null) {
+//
+//                byte[] b = line.getBytes();
+//                line = new String(b, "UTF-8");
+//                String[] columns = line.split(",",-1);
+//
+//                for (int j = 0; j < columns.length; j++) {
+//                    System.out.print(columns[j] + "\t");
+//                }
+//
+//                System.out.println("");
+//
+//            }
+//
+//            input.close();
+//            stream.close();
+//            buffer.close();
+//
+//        } catch (UnsupportedEncodingException | FileNotFoundException e) {
+//            e.printStackTrace();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//
+//        }
+//    }
 }
 
