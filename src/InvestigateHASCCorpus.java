@@ -8,18 +8,33 @@
 */
 
 
+
 import java.io.*;
-import java.util.StringTokenizer;
 
 public class InvestigateHASCCorpus {
 
     // データの場所指定
     final public static String dataPath = "./data/";
+    // ファイル出力のフラグ
+    final public static boolean outputFileFlag = true;
     // 出力ファイル
-    final public static String outputFile = "./result.txt";
+    final public static String outputFile = "./result.csv";
+
+    static PrintWriter pw = null;
 
 
     public static void main(String[] args) {
+
+        // ファイル出力の準備
+        if (outputFileFlag){
+            try{
+                File file = new File(outputFile);
+                pw = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+            } catch (IOException ex){
+                System.out.println(ex);
+            }
+        }
+
 
         // 通常のファイル(隠しファイルでない)のみを取り出すフィルタの作成
         FilenameFilter normalFileFilter = new FilenameFilter() {
