@@ -188,6 +188,17 @@ public class InvestigateHASCCorpus {
                         unknown++;
                     }
 
+                    // 年齢の取得
+//                    String ages = getMetaElement(metaFile, "Generation");
+//                    String age = ages.split(";")[0];
+//                    System.out.println(age);
+                    // HASC Corpusの年齢はあまりパターンが多くない
+
+                    // 身長・体重の取得
+                    float HeightWeght[] = getHeightWeight(metaFile);
+                    String data = String.format("%s,%.1f,%.1f", gender, HeightWeght[0], HeightWeght[1]);
+                    if (outputFileFlag) pw.println(data);
+
                     // 各metaファイルの処理終了
                 }
                 // 各personディレクトリの処理終了
@@ -236,15 +247,15 @@ public class InvestigateHASCCorpus {
         System.out.printf("\t(male: %d, female: %d, unknown: %d)\n", (int)totalMale, (int)totalFemale, (int)totalUnknown);
         System.out.println("total label count = " + totalLabelCount);
 
+        // 出力ファイルの終了処理
+        if (outputFileFlag) pw.close();
+
     }
 
     static String getGender(File file){
 
         // 性別タグ
-        final String genderTAG = "Gender:";
-
-        // 性別変数
-        String gender = null;
+        final String genderTAG = "Gender";
 
         try {
             //ファイルを読み込む
@@ -261,7 +272,7 @@ public class InvestigateHASCCorpus {
 
                     // TerminalMountから内容の取り出し
                     int idx_gender = line_str.indexOf(":") + 1;
-                    gender = line_str.substring(idx_gender, line_str.length());
+                    String gender = line_str.substring(idx_gender, line_str.length());
                     gender = gender.trim(); // 空白の削除
 
 //                    System.out.println(gender);
@@ -279,6 +290,106 @@ public class InvestigateHASCCorpus {
 
         //
         return "unknown";
+    }
+
+    static float[] getHeightWeight(File file){
+
+        // タグ
+        final String heightTAG = "Height";
+        final String weightTAG = "Weight";
+
+        // 返却する配列
+        float ans[] = {-1, -1};
+
+        // 身長と体重の取得フラグ
+        boolean getHeight_flag = false;
+        boolean getWeight_flag = false;
+
+        try {
+            //ファイルを読み込む
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            //読み込んだファイルを１行ずつ処理する
+            String line_str;
+            for(int i=0; (line_str = br.readLine()) != null; i++){
+
+                // Heightの処理
+                if (line_str.indexOf(heightTAG) != -1) {
+
+
+                    // Heightから内容の取り出し
+                    int idx_height = line_str.indexOf(":") + 1;
+                    String height = line_str.substring(idx_height, line_str.length());
+                    height = height.trim(); // 空白の削除
+
+//                    System.out.println(height);
+                    ans[0] = Float.parseFloat(height);
+                    getHeight_flag = true;
+                }
+                // Weightの処理
+                else if (line_str.indexOf(weightTAG) != -1) {
+
+
+                    // Weightから内容の取り出し
+                    int idx_weight = line_str.indexOf(":") + 1;
+                    String weight = line_str.substring(idx_weight, line_str.length());
+                    weight = weight.trim(); // 空白の削除
+
+//                    System.out.println(weight);
+                    ans[1] = Float.parseFloat(weight);
+                    getWeight_flag = true;
+                }
+
+                if (getHeight_flag == true && getWeight_flag == true) return ans;
+            }
+
+            //終了処理
+            br.close();
+
+        } catch (IOException ex) {
+            //例外発生時処理
+            ex.printStackTrace();
+        }
+
+        //
+        return ans;
+    }
+
+    static String getMetaElement(File file, String TAG){
+
+        try {
+            //ファイルを読み込む
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            //読み込んだファイルを１行ずつ処理する
+            String line_str;
+            for(int i=0; (line_str = br.readLine()) != null; i++){
+
+                // Genderの処理
+                if (line_str.indexOf(TAG) != -1) {
+
+
+                    // TerminalMountから内容の取り出し
+                    int idx_target = line_str.indexOf(":") + 1;
+                    String target = line_str.substring(idx_target, line_str.length());
+                    target = target.trim(); // 空白の削除
+
+                    return target;
+                }
+            }
+
+            //終了処理
+            br.close();
+
+        } catch (IOException ex) {
+            //例外発生時処理
+            ex.printStackTrace();
+        }
+
+        //
+        return "";
     }
 
 
