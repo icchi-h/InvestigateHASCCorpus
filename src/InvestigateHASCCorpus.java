@@ -173,6 +173,11 @@ public class InvestigateHASCCorpus {
                 File[] metaFiles = personDir.listFiles(metaFileFilter);
                 File[] labelFiles = personDir.listFiles(labelFileFilter);
 
+                if (accFiles.length != metaFiles.length){
+                    System.out.print("加速度とmetaの数あってないで!: ");
+                    System.out.println(personDir.getName());
+                }
+
                 // カウンターの更新
                 activityAccCount += accFiles.length;
                 activityGyroCount += gyroFiles.length;
