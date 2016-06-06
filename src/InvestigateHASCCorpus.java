@@ -211,6 +211,7 @@ public class InvestigateHASCCorpus {
             activityLabelCount = 0;
             activityMetaCount = 0;
             activityUserCount = 0;
+
             // 性別カウンターの初期化
             male = 0;
             female = 0;
@@ -252,11 +253,11 @@ public class InvestigateHASCCorpus {
                 activityAccCount += accFiles.length;
                 activityGyroCount += gyroFiles.length;
                 activityMagCount += magFiles.length;
-                activityLocCount = locFiles.length;
-                activityPressCount = pressFiles.length;
-                activityProxiCount = proxiFiles.length;
-                activityLightCount = lightFiles.length;
-                activityWifiCount = wifiFiles.length;
+                activityLocCount += locFiles.length;
+                activityPressCount += pressFiles.length;
+                activityProxiCount += proxiFiles.length;
+                activityLightCount += lightFiles.length;
+                activityWifiCount += wifiFiles.length;
                 activityMetaCount += metaFiles.length;
                 activityLabelCount += labelFiles.length;
 
