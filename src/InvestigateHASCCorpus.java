@@ -16,7 +16,7 @@ public class InvestigateHASCCorpus {
     // データの場所指定
     final public static String dataPath = "./data/";
     // ファイル出力のフラグ
-    final public static boolean outputFileFlag = true;
+    final public static boolean outputFileFlag = false;
     // 出力ファイル
     final public static String outputFile = "./result.csv";
 
@@ -77,6 +77,56 @@ public class InvestigateHASCCorpus {
                 }
             }
         };
+        // locファイルのみを取り出すフィルタ
+        FilenameFilter locFileFilter = new FilenameFilter() {
+            public boolean accept(File file, String name) {
+                if (name.matches(".*loc.*")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        // pressファイルのみを取り出すフィルタ
+        FilenameFilter pressFileFilter = new FilenameFilter() {
+            public boolean accept(File file, String name) {
+                if (name.matches(".*press.*")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        // proxiファイルのみを取り出すフィルタ
+        FilenameFilter proxiFileFilter = new FilenameFilter() {
+            public boolean accept(File file, String name) {
+                if (name.matches(".*proxi.*")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        // lightファイルのみを取り出すフィルタ
+        FilenameFilter lightFileFilter = new FilenameFilter() {
+            public boolean accept(File file, String name) {
+                if (name.matches(".*light.*")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        // wifiファイルのみを取り出すフィルタ
+        FilenameFilter wifiFileFilter = new FilenameFilter() {
+            public boolean accept(File file, String name) {
+                if (name.matches(".*wifi.*")){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
         // metaファイルのみを取り出すフィルタ
         FilenameFilter metaFileFilter = new FilenameFilter() {
             public boolean accept(File file, String name) {
@@ -107,11 +157,21 @@ public class InvestigateHASCCorpus {
         int totalAccCount = 0;
         int totalGyroCount = 0;
         int totalMagCount = 0;
+        int totalLocCount = 0;
+        int totalPressCount = 0;
+        int totalProxiCount = 0;
+        int totalLightCount = 0;
+        int totalWifiCount = 0;
         int totalLabelCount = 0;
         int totalMetaCount = 0;
         int activityAccCount = 0;
         int activityGyroCount = 0;
         int activityMagCount = 0;
+        int activityLocCount = 0;
+        int activityPressCount = 0;
+        int activityProxiCount = 0;
+        int activityLightCount = 0;
+        int activityWifiCount = 0;
         int activityLabelCount = 0;
         int activityMetaCount = 0;
         int activityUserCount = 0;
@@ -143,6 +203,11 @@ public class InvestigateHASCCorpus {
             activityAccCount = 0;
             activityGyroCount = 0;
             activityMagCount = 0;
+            activityLocCount = 0;
+            activityPressCount = 0;
+            activityProxiCount = 0;
+            activityLightCount = 0;
+            activityWifiCount = 0;
             activityLabelCount = 0;
             activityMetaCount = 0;
             activityUserCount = 0;
@@ -170,6 +235,11 @@ public class InvestigateHASCCorpus {
                 File[] accFiles = personDir.listFiles(accFileFilter);
                 File[] gyroFiles = personDir.listFiles(gyroFileFilter);
                 File[] magFiles = personDir.listFiles(magFileFilter);
+                File[] locFiles = personDir.listFiles(locFileFilter);
+                File[] pressFiles = personDir.listFiles(pressFileFilter);
+                File[] proxiFiles = personDir.listFiles(proxiFileFilter);
+                File[] lightFiles = personDir.listFiles(lightFileFilter);
+                File[] wifiFiles = personDir.listFiles(wifiFileFilter);
                 File[] metaFiles = personDir.listFiles(metaFileFilter);
                 File[] labelFiles = personDir.listFiles(labelFileFilter);
 
@@ -182,6 +252,11 @@ public class InvestigateHASCCorpus {
                 activityAccCount += accFiles.length;
                 activityGyroCount += gyroFiles.length;
                 activityMagCount += magFiles.length;
+                activityLocCount = locFiles.length;
+                activityPressCount = pressFiles.length;
+                activityProxiCount = proxiFiles.length;
+                activityLightCount = lightFiles.length;
+                activityWifiCount = wifiFiles.length;
                 activityMetaCount += metaFiles.length;
                 activityLabelCount += labelFiles.length;
 
@@ -234,6 +309,11 @@ public class InvestigateHASCCorpus {
             System.out.println("acc count = " + activityAccCount);
             System.out.println("gyro count = " + activityGyroCount);
             System.out.println("mag count = " + activityMagCount);
+            System.out.println("loc count = " + activityLocCount);
+            System.out.println("press count = " + activityPressCount);
+            System.out.println("proxi count = " + activityProxiCount);
+            System.out.println("light count = " + activityLightCount);
+            System.out.println("wifi count = " + activityWifiCount);
             System.out.println("meta count = " + activityMetaCount);
             System.out.printf("\t(male: %d, female: %d, unknown: %d)\n", (int)male, (int)female, (int)unknown);
             System.out.println("label count = " + activityLabelCount);
@@ -244,6 +324,11 @@ public class InvestigateHASCCorpus {
             totalAccCount += activityAccCount;
             totalGyroCount += activityGyroCount;
             totalMagCount += activityMagCount;
+            totalLocCount += activityLocCount;
+            totalPressCount += activityPressCount;
+            totalProxiCount += activityProxiCount;
+            totalLightCount += activityLightCount;
+            totalWifiCount += activityWifiCount;
             totalMetaCount += activityMetaCount;
             totalLabelCount += activityLabelCount;
             // 性別カウンターの更新
@@ -264,6 +349,11 @@ public class InvestigateHASCCorpus {
         System.out.println("total acc count = " + totalAccCount);
         System.out.println("total gyro count = " + totalGyroCount);
         System.out.println("total mag count = " + totalMagCount);
+        System.out.println("total loc count = " + totalLocCount);
+        System.out.println("total press count = " + totalPressCount);
+        System.out.println("total proxi count = " + totalProxiCount);
+        System.out.println("total light count = " + totalLightCount);
+        System.out.println("total wifi count = " + totalWifiCount);
         System.out.println("total meta count = " + totalMetaCount);
         System.out.printf("\t(male: %d, female: %d, unknown: %d)\n", (int)totalMale, (int)totalFemale, (int)totalUnknown);
         System.out.println("total label count = " + totalLabelCount);
